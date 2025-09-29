@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export DEBIAN_FRONTEND=noninteractive
+export DEBIAN_PRIORITY=critical
 export UCF_FORCE_CONFFNEW=1
 export UCF_FORCE_CONFFMISS=1
 APT_OPTS=(-o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-confmiss" --assume-yes)
