@@ -8,6 +8,18 @@ APT_OPTS=(-o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-confm
 LOGFILE="/root/ptero_install.log"
 exec > >(tee -a $LOGFILE) 2>&1
 
+# --- PADAM SEMUA CONFIG LAMA DAN GANTI DENGAN VERSI PACKAGE MAINTAINER ---
+echo "Padam semua config .dpkg-old, .dpkg-dist, .dpkg-new, .ucf-old sebelum install/upgrade..."
+find /etc -type f \( -name "*.dpkg-old" -o -name "*.dpkg-dist" -o -name "*.dpkg-new" -o -name "*.ucf-old" \) -exec rm -f {} \;
+
+echo "Ganti semua config modified dengan versi package maintainer (jika ada)..."
+find /etc -type f -name "*.dpkg-dist" | while read conf; do
+  base_conf="${conf%.dpkg-dist}"
+  echo "Ganti $base_conf dengan versi package maintainer"
+  cp -f "$conf" "$base_conf"
+  rm -f "$conf"
+done
+
 retry_cmd() {
   local n=0
   local max=3
@@ -35,7 +47,6 @@ retry_cmd() {
       sudo apt upgrade -y "${APT_OPTS[@]}" || true
       sudo apt autoremove -y || true
       sudo apt clean || true
-      # Auto pilih config baru jika perlu
       sudo apt -y "${APT_OPTS[@]}" upgrade || true
     fi
     exit 1
@@ -52,7 +63,6 @@ auto_fix() {
     sudo apt upgrade -y "${APT_OPTS[@]}" || true
     sudo apt autoremove -y || true
     sudo apt clean || true
-    # Auto pilih config baru jika ada prompt
     sudo apt -y "${APT_OPTS[@]}" upgrade || true
   fi
   if [[ $cmd == *mysql* ]]; then
