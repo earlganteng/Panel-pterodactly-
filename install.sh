@@ -1,7 +1,9 @@
 #!/bin/bash
 
 export DEBIAN_FRONTEND=noninteractive
-APT_OPTS=(-o Dpkg::Options::="--force-confnew" --assume-yes)
+export UCF_FORCE_CONFFNEW=1
+export UCF_FORCE_CONFFMISS=1
+APT_OPTS=(-o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-confmiss" --assume-yes)
 
 LOGFILE="/root/ptero_install.log"
 exec > >(tee -a $LOGFILE) 2>&1
@@ -34,7 +36,7 @@ retry_cmd() {
       sudo apt autoremove -y || true
       sudo apt clean || true
       # Auto pilih config baru jika perlu
-      sudo apt -y -o Dpkg::Options::="--force-confnew" upgrade || true
+      sudo apt -y "${APT_OPTS[@]}" upgrade || true
     fi
     exit 1
   fi
@@ -51,7 +53,7 @@ auto_fix() {
     sudo apt autoremove -y || true
     sudo apt clean || true
     # Auto pilih config baru jika ada prompt
-    sudo apt -y -o Dpkg::Options::="--force-confnew" upgrade || true
+    sudo apt -y "${APT_OPTS[@]}" upgrade || true
   fi
   if [[ $cmd == *mysql* ]]; then
     sudo systemctl restart mysql || true
